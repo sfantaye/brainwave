@@ -3,36 +3,167 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Groq Chat App</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; }
-        #chat { margin-bottom: 10px; }
-        .user { color: blue; }
-        .assistant { color: green; }
-        input[type="text"] { width: 80%; padding: 8px; }
-        button { padding: 8px; }
+        /* General Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: #6200ea;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .navbar .developer-banner {
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Chat Messages */
+        #chat {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+        .user {
+            background-color: #e3f2fd;
+            color: #1e88e5;
+            align-self: flex-end;
+        }
+
+        .assistant {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            position: relative;
+        }
+
+        .assistant::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: -10px;
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-right: 10px solid #e8f5e9;
+        }
+
+        /* Input Area */
+        .input-area {
+            display: flex;
+            padding: 10px;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 12px 20px;
+            background-color: #6200ea;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #3700b3;
+        }
+
+        /* Typing Effect */
+        .typing-effect {
+            display: inline-block;
+            overflow: hidden;
+            border-right: 2px solid #2e7d32;
+            animation: typing 2s steps(20), blink-caret 0.75s step-end infinite;
+            white-space: nowrap;
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: #2e7d32; }
+        }
     </style>
 </head>
 <body>
-    <h1>Groq Chat App</h1>
+    <!-- Navbar -->
+    <div class="navbar">
+        <h1>Groq Chat App</h1>
+        <div class="developer-banner">Developed by Sintayehu Fantaye</div>
+    </div>
 
-    <div id="chat"></div>
-
-    <input id="question" type="text" placeholder="Ask something..." />
-    <button onclick="send()">Send</button>
+    <!-- Chat Interface -->
+    <div class="chat-container">
+        <div id="chat"></div>
+        <div class="input-area">
+            <input id="question" type="text" placeholder="Ask something..." />
+            <button onclick="send()">Send</button>
+        </div>
+    </div>
 
     <script>
         let memory = [];
 
         async function send() {
             const questionInput = document.getElementById('question');
-            const question = questionInput.value;
+            const question = questionInput.value.trim();
             if (!question) return;
 
             // Display user message
             const chatDiv = document.getElementById('chat');
             const userMessage = document.createElement('div');
-            userMessage.className = 'user';
+            userMessage.className = 'message user';
             userMessage.textContent = "You: " + question;
             chatDiv.appendChild(userMessage);
 
@@ -47,11 +178,27 @@
 
             const result = await response.json();
 
-            // Display assistant message
+            // Display assistant message with typing effect
             const assistantMessage = document.createElement('div');
-            assistantMessage.className = 'assistant';
-            assistantMessage.textContent = "Assistant: " + result.answer;
+            assistantMessage.className = 'message assistant';
             chatDiv.appendChild(assistantMessage);
+
+            const typingSpan = document.createElement('span');
+            typingSpan.className = 'typing-effect';
+            assistantMessage.appendChild(typingSpan);
+
+            // Simulate typing effect
+            const answer = result.answer;
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i < answer.length) {
+                    typingSpan.textContent += answer[i];
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    typingSpan.style.borderRight = 'none'; // Remove caret after typing
+                }
+            }, 20);
 
             // Update memory
             memory = result.memory;
@@ -62,4 +209,3 @@
     </script>
 </body>
 </html>
-
