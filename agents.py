@@ -18,7 +18,7 @@ if not GROQ_API_KEY:
 llm = ChatGroq(
     model="llama3-8b-8192",
     temperature=0.2,
-    groq_api_key=GROQ_API_KEY,  # Pass the API key directly to the model
+    groq_api_key=GROQ_API_KEY,  
 )
 
 # Define conversation state
@@ -27,6 +27,8 @@ class AgentState(TypedDict):
     answer: str
     memory: list[str]
 
+# Define agent function
+# Define agent function
 # Define agent function
 def answer_agent(state: AgentState):
     question = state["question"]
@@ -38,15 +40,22 @@ def answer_agent(state: AgentState):
     else:
         context = question
 
+    # Get response from the model
     response = llm.invoke(context)
 
-    updated_memory = memory + [f"User: {question}", f"Assistant: {response.content}"]
+    # Split the response into sentences and add newlines between them
+    sentences = response.content.split(". ")
+    formatted_response = ".\n".join(sentences)  # Add a newline after each sentence
+
+    # Update memory with the formatted response
+    updated_memory = memory + [f"User: {question}", f"BrainWave: {formatted_response}"]
 
     return {
-        "answer": response.content,
+        "answer": formatted_response,  # Return the formatted response
         "memory": updated_memory
     }
 
+    
 # Create workflow
 workflow = StateGraph(AgentState)
 workflow.add_node("agent", RunnableLambda(answer_agent))

@@ -141,7 +141,7 @@
 <body>
     <!-- Navbar -->
     <div class="navbar">
-        <h1>Groq Chat App</h1>
+        <h1>BrainWave Chat App</h1>
         <div class="developer-banner">Developed by Sintayehu Fantaye</div>
     </div>
 
@@ -158,56 +158,56 @@
         let memory = [];
 
         async function send() {
-            const questionInput = document.getElementById('question');
-            const question = questionInput.value.trim();
-            if (!question) return;
+    const questionInput = document.getElementById('question');
+    const question = questionInput.value.trim();
+    if (!question) return;
 
-            // Display user message
-            const chatDiv = document.getElementById('chat');
-            const userMessage = document.createElement('div');
-            userMessage.className = 'message user';
-            userMessage.textContent = "You: " + question;
-            chatDiv.appendChild(userMessage);
+    // Display user message
+    const chatDiv = document.getElementById('chat');
+    const userMessage = document.createElement('div');
+    userMessage.className = 'message user';
+    userMessage.textContent = "You: " + question;
+    chatDiv.appendChild(userMessage);
 
-            questionInput.value = "";
+    questionInput.value = "";
 
-            // Send to backend
-            const response = await fetch('/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question, memory })
-            });
+    // Send to backend
+    const response = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, memory })
+    });
 
-            const result = await response.json();
+    const result = await response.json();
 
-            // Display assistant message with typing effect
-            const assistantMessage = document.createElement('div');
-            assistantMessage.className = 'message assistant';
-            chatDiv.appendChild(assistantMessage);
+    // Display assistant message with typing effect
+    const assistantMessage = document.createElement('div');
+    assistantMessage.className = 'message assistant';
+    chatDiv.appendChild(assistantMessage);
 
-            const typingSpan = document.createElement('span');
-            typingSpan.className = 'typing-effect';
-            assistantMessage.appendChild(typingSpan);
+    const typingSpan = document.createElement('span');
+    typingSpan.className = 'typing-effect';
+    assistantMessage.appendChild(typingSpan);
 
-            // Simulate typing effect
-            const answer = result.answer;
-            let i = 0;
-            const interval = setInterval(() => {
-                if (i < answer.length) {
-                    typingSpan.textContent += answer[i];
-                    i++;
-                } else {
-                    clearInterval(interval);
-                    typingSpan.style.borderRight = 'none'; // Remove caret after typing
-                }
-            }, 20);
-
-            // Update memory
-            memory = result.memory;
-
-            // Scroll to bottom
-            chatDiv.scrollTop = chatDiv.scrollHeight;
+    // Simulate typing effect
+    const answer = result.answer.replace(/\n/g, "<br>"); // Replace \n with <br> for HTML rendering
+    let i = 0;
+    const interval = setInterval(() => {
+        if (i < answer.length) {
+            typingSpan.innerHTML += answer[i]; // Use innerHTML to render <br> tags
+            i++;
+        } else {
+            clearInterval(interval);
+            typingSpan.style.borderRight = 'none'; // Remove caret after typing
         }
+    }, 20);
+
+    // Update memory
+    memory = result.memory;
+
+    // Scroll to bottom
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+}
     </script>
 </body>
 </html>
