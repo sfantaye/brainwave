@@ -1,1 +1,65 @@
+<!-- static/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Groq Chat App</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; }
+        #chat { margin-bottom: 10px; }
+        .user { color: blue; }
+        .assistant { color: green; }
+        input[type="text"] { width: 80%; padding: 8px; }
+        button { padding: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Groq Chat App</h1>
+
+    <div id="chat"></div>
+
+    <input id="question" type="text" placeholder="Ask something..." />
+    <button onclick="send()">Send</button>
+
+    <script>
+        let memory = [];
+
+        async function send() {
+            const questionInput = document.getElementById('question');
+            const question = questionInput.value;
+            if (!question) return;
+
+            // Display user message
+            const chatDiv = document.getElementById('chat');
+            const userMessage = document.createElement('div');
+            userMessage.className = 'user';
+            userMessage.textContent = "You: " + question;
+            chatDiv.appendChild(userMessage);
+
+            questionInput.value = "";
+
+            // Send to backend
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question, memory })
+            });
+
+            const result = await response.json();
+
+            // Display assistant message
+            const assistantMessage = document.createElement('div');
+            assistantMessage.className = 'assistant';
+            assistantMessage.textContent = "Assistant: " + result.answer;
+            chatDiv.appendChild(assistantMessage);
+
+            // Update memory
+            memory = result.memory;
+
+            // Scroll to bottom
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>
 
