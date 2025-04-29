@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: fastapi-app
+    name: barainwave
     env: python
     plan: free
     region: oregon
