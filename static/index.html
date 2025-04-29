@@ -18,7 +18,7 @@
             --text-dark: #212529;
             --bg-glass: rgba(255, 255, 255, 0.1);
             --bg-user-msg: linear-gradient(135deg, #6f42c1, #9b59b6); /* Purple gradient */
-            --bg-assistant-msg: linear-gradient(135deg, #20c997, #28a745); /* Teal/Green gradient */
+            --bg-assistant-msg: linear-gradient(135deg, #323f3b, #697e6e); /* Teal/Green gradient */
             --border-color: rgba(255, 255, 255, 0.2);
             --shadow-color: rgba(0, 0, 0, 0.3);
         }
@@ -440,7 +440,7 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = 'message assistant typing-container';
 
-            const senderPrefix = `<strong>Assistant:</strong> `;
+            const senderPrefix = `<strong>BrainWave:</strong> `;
             messageDiv.innerHTML = senderPrefix;
 
             const contentSpan = document.createElement('span');
@@ -523,7 +523,7 @@
         document.addEventListener('DOMContentLoaded', () => {
              document.getElementById('question').focus();
              setTimeout(() => {
-                 typeAssistantMessage("Hello there! I'm BrainWave, powered by Groq. Ask me anything!");
+                 typeAssistantMessage("Hello there! I'm BrainWave, developed by Sintayehu Fantaye. Ask me anything!");
              }, 500);
         });
 
