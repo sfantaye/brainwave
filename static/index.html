@@ -1,213 +1,490 @@
-<!-- static/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Groq Chat App</title>
+    <title>✨ BrainWave Chat ✨</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        /* General Styles */
+        /* General Styles & Root Variables */
+        :root {
+            --primary-glow: #00ffff; /* Cyan */
+            --secondary-glow: #ff00ff; /* Magenta */
+            --accent-color: #9b59b6; /* Amethyst */
+            --text-light: #f8f9fa;
+            --text-dark: #212529;
+            --bg-glass: rgba(255, 255, 255, 0.1);
+            --bg-user-msg: linear-gradient(135deg, #6f42c1, #9b59b6); /* Purple gradient */
+            --bg-assistant-msg: linear-gradient(135deg, #20c997, #28a745); /* Teal/Green gradient */
+            --border-color: rgba(255, 255, 255, 0.2);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f9;
-            color: #333;
+            color: var(--text-light);
+            overflow: hidden; /* Prevent scrollbars from animated background */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460, #533483);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         /* Navbar */
         .navbar {
-            background-color: #6200ea;
-            color: white;
-            padding: 15px 20px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* Safari */
+            color: var(--text-light);
+            padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px var(--shadow-color);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         .navbar h1 {
             margin: 0;
-            font-size: 24px;
+            font-size: 26px;
+            font-weight: 600;
+            text-shadow: 0 0 5px var(--primary-glow), 0 0 10px var(--secondary-glow);
+            animation: pulseText 3s infinite alternate;
         }
+
+        @keyframes pulseText {
+             0% { text-shadow: 0 0 5px var(--primary-glow), 0 0 10px var(--secondary-glow); }
+             100% { text-shadow: 0 0 10px var(--primary-glow), 0 0 20px var(--secondary-glow); }
+        }
+
 
         .navbar .developer-banner {
             font-size: 14px;
-            font-style: italic;
+            font-weight: 300;
+            opacity: 0.8;
         }
 
-        /* Chat Container */
+        /* Chat Container - Full Height Flex */
+        .chat-area-wrapper {
+            flex-grow: 1; /* Takes remaining vertical space */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden; /* Prevent wrapper scroll */
+        }
+
         .chat-container {
-            max-width: 600px;
-            margin: 20px auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
+            width: 100%;
+            max-width: 700px; /* Slightly wider */
+            height: calc(100vh - 120px); /* Adjust based on navbar height and padding */
+            max-height: 800px; /* Max height */
+            background: var(--bg-glass);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px); /* Safari */
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 var(--shadow-color);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Important for border-radius and children */
         }
 
         /* Chat Messages */
         #chat {
-            height: 400px;
+            flex-grow: 1;
             overflow-y: auto;
-            padding: 20px;
-            border-bottom: 1px solid #ddd;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            /* Custom Scrollbar */
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-color) transparent;
+        }
+
+        #chat::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #chat::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #chat::-webkit-scrollbar-thumb {
+            background-color: var(--accent-color);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
         }
 
         .message {
-            margin-bottom: 15px;
-            padding: 10px;
-            border-radius: 8px;
-            max-width: 80%;
-            word-wrap: break-word; /* Ensures long words break */
-            white-space: pre-wrap; /* Preserves line breaks and wraps text */
+            padding: 12px 18px;
+            border-radius: 15px;
+            max-width: 85%;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            position: relative;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.5s ease forwards;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            line-height: 1.6;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message strong { /* Style the "You:" and "Assistant:" prefixes */
+           display: block;
+           margin-bottom: 5px;
+           font-weight: 600;
+           opacity: 0.8;
+           font-size: 0.9em;
         }
 
         .user {
-            background-color: #e3f2fd;
-            color: #1e88e5;
+            background: var(--bg-user-msg);
+            color: var(--text-light);
             align-self: flex-end;
+            border-bottom-right-radius: 5px; /* Slightly different corner */
         }
 
         .assistant {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            position: relative;
-        }
-
-        .assistant::before {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: -10px;
-            width: 0;
-            height: 0;
-            border-top: 10px solid transparent;
-            border-bottom: 10px solid transparent;
-            border-right: 10px solid #e8f5e9;
+            background: var(--bg-assistant-msg);
+            color: var(--text-light);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px; /* Slightly different corner */
         }
 
         /* Input Area */
         .input-area {
             display: flex;
-            padding: 10px;
+            padding: 15px 20px;
             gap: 10px;
+            border-top: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.1); /* Slightly darker input area bg */
         }
 
         input[type="text"] {
             flex-grow: 1;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
+            padding: 14px 20px;
+            border: 1px solid transparent;
+            border-radius: 25px; /* Pill shape */
             outline: none;
             font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            background-color: rgba(255, 255, 255, 0.15);
+            color: var(--text-light);
+            transition: all 0.3s ease;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        input[type="text"]:focus {
+            background-color: rgba(255, 255, 255, 0.25);
+            border-color: var(--primary-glow);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5), inset 0 1px 3px rgba(0,0,0,0.2);
         }
 
         button {
-            padding: 12px 20px;
-            background-color: #6200ea;
-            color: white;
+            padding: 0 18px; /* Adjust padding for icon */
+            background: linear-gradient(135deg, var(--primary-glow), var(--secondary-glow));
+            color: var(--text-dark); /* Dark text on bright button */
             border: none;
-            border-radius: 20px;
+            border-radius: 50%; /* Circle */
+            width: 50px; /* Fixed width */
+            height: 50px; /* Fixed height */
             cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
+            font-size: 24px; /* Icon size */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
+
+        button svg {
+             width: 24px;
+             height: 24px;
+             fill: var(--text-dark);
+             transition: transform 0.3s ease;
+        }
+
 
         button:hover {
-            background-color: #3700b3;
+            transform: scale(1.1);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
         }
+         button:hover svg {
+            transform: rotate(-15deg) scale(1.1);
+         }
+
+        button:active {
+             transform: scale(1.05);
+             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
 
         /* Typing Effect */
+        .typing-container { /* Wrapper for potential future elements */
+             /* Inherits styles from .assistant */
+        }
         .typing-effect {
             display: inline-block;
-            overflow: hidden;
-            border-right: 2px solid #2e7d32;
-            animation: typing 2s steps(20), blink-caret 0.75s step-end infinite;
-            white-space: nowrap;
+            /* No background needed, inherits from parent */
+            /* No padding needed here, handled by parent */
         }
+         .typing-effect::after { /* The caret */
+            content: '|';
+            display: inline-block;
+            animation: blink-caret 0.75s step-end infinite;
+            color: var(--text-light); /* Match text color */
+            margin-left: 2px; /* Space between text and caret */
+            opacity: 0.7;
+         }
 
-        @keyframes typing {
-            from { width: 0; }
-            to { width: 100%; }
-        }
 
         @keyframes blink-caret {
-            from, to { border-color: transparent; }
-            50% { border-color: #2e7d32; }
+            from, to { opacity: 0; }
+            50% { opacity: 0.7; }
         }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .navbar h1 {
+                font-size: 22px;
+            }
+            .navbar .developer-banner {
+                 font-size: 12px;
+            }
+             .chat-area-wrapper {
+                 padding: 10px;
+             }
+            .chat-container {
+                 height: calc(100vh - 100px); /* Adjust for smaller screens */
+                 border-radius: 15px;
+            }
+             #chat {
+                 padding: 15px;
+             }
+             .input-area {
+                 padding: 10px 15px;
+             }
+              input[type="text"] {
+                 padding: 12px 18px;
+                 font-size: 15px;
+             }
+              button {
+                 width: 45px;
+                 height: 45px;
+             }
+              button svg {
+                  width: 20px;
+                  height: 20px;
+             }
+        }
+         @media (max-width: 480px) {
+             .navbar {
+                 padding: 10px 15px;
+             }
+             .navbar h1 {
+                 font-size: 18px;
+             }
+              .navbar .developer-banner {
+                 display: none; /* Hide developer banner on very small screens */
+            }
+             .chat-container {
+                 height: calc(100vh - 80px); /* Adjust further */
+                 border-radius: 10px;
+             }
+         }
+
+
     </style>
 </head>
 <body>
     <!-- Navbar -->
     <div class="navbar">
-        <h1>BrainWave Chat App</h1>
+        <h1>✨ BrainWave Chat ✨</h1>
         <div class="developer-banner">Developed by Sintayehu Fantaye</div>
     </div>
 
-    <!-- Chat Interface -->
-    <div class="chat-container">
-        <div id="chat"></div>
-        <div class="input-area">
-            <input id="question" type="text" placeholder="Ask something..." />
-            <button onclick="send()">Send</button>
+    <!-- Chat Area Wrapper -->
+    <div class="chat-area-wrapper">
+        <!-- Chat Interface -->
+        <div class="chat-container">
+            <div id="chat">
+                 <!-- Example messages (optional) -->
+                <!-- <div class="message assistant"><strong>Assistant:</strong> Hello! How can I help you today?</div>
+                <div class="message user"><strong>You:</strong> Tell me a fun fact!</div> -->
+            </div>
+            <div class="input-area">
+                <input id="question" type="text" placeholder="Ask BrainWave anything..." onkeydown="if(event.key === 'Enter') send();"/>
+                <button onclick="send()" aria-label="Send message">
+                    <!-- Embedded SVG Send Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="none" d="M0 0h24v24H0z"/><path d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"/></svg>
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
-        let memory = [];
+        let memory = []; // Keep track of conversation history
+
+        // Function to add a message to the chat interface
+        function addMessage(sender, text) {
+            const chatDiv = document.getElementById('chat');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender.toLowerCase()}`; // 'user' or 'assistant'
+
+            // Add sender prefix and format text (handle potential markdown later if needed)
+            const senderPrefix = `<strong>${sender}:</strong> `;
+            messageDiv.innerHTML = senderPrefix + text.replace(/\n/g, "<br>"); // Ensure line breaks are rendered
+
+            chatDiv.appendChild(messageDiv);
+            scrollToBottom(); // Scroll down after adding message
+            return messageDiv; // Return the element for potential modification (like typing)
+        }
+
+        // Function to simulate typing effect
+        function typeAssistantMessage(text) {
+            const chatDiv = document.getElementById('chat');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message assistant typing-container'; // Add typing container class
+
+            // Add sender prefix
+            const senderPrefix = `<strong>Assistant:</strong> `;
+            messageDiv.innerHTML = senderPrefix; // Start with only the prefix
+
+            const contentSpan = document.createElement('span');
+            contentSpan.className = 'typing-effect';
+            messageDiv.appendChild(contentSpan); // Span where text will be typed
+
+            chatDiv.appendChild(messageDiv);
+            scrollToBottom();
+
+            const formattedText = text.replace(/\n/g, "<br>"); // Pre-format text with breaks
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i < formattedText.length) {
+                    // Check if the next chunk is <br> tag
+                    if (formattedText.substring(i, i + 4) === "<br>") {
+                        contentSpan.innerHTML += "<br>";
+                        i += 4;
+                    } else {
+                        contentSpan.innerHTML += formattedText[i];
+                        i++;
+                    }
+                    scrollToBottom(); // Keep scrolling as text types
+                } else {
+                    clearInterval(interval);
+                    // Remove the blinking caret style - find the ::after pseudo-element's class if needed
+                    // Simple approach: Add a class to the span when done typing
+                     contentSpan.classList.add('typing-done');
+                     // We target the pseudo-element via CSS using .typing-done::after { display: none; }
+                     // For simplicity, let's just rely on the visual completion.
+                     // OR remove the container class and add a final class
+                     messageDiv.classList.remove('typing-container');
+                     // Ensure final scroll
+                     scrollToBottom();
+                }
+            }, 25); // Typing speed (milliseconds)
+        }
+
+        // Scroll chat to the bottom
+        function scrollToBottom() {
+            const chatDiv = document.getElementById('chat');
+            // Use smooth scrolling for a nicer effect
+             chatDiv.scrollTo({ top: chatDiv.scrollHeight, behavior: 'smooth' });
+        }
 
         async function send() {
-    const questionInput = document.getElementById('question');
-    const question = questionInput.value.trim();
-    if (!question) return;
+            const questionInput = document.getElementById('question');
+            const question = questionInput.value.trim();
+            if (!question) return;
 
-    // Display user message
-    const chatDiv = document.getElementById('chat');
-    const userMessage = document.createElement('div');
-    userMessage.className = 'message user';
-    userMessage.textContent = "You: " + question;
-    chatDiv.appendChild(userMessage);
+            // Display user message immediately
+            addMessage("You", question);
+            questionInput.value = ""; // Clear input field
+            questionInput.focus(); // Keep focus on input
 
-    questionInput.value = "";
+            // Add a subtle loading indicator (optional)
+            // addMessage("Assistant", "<i>Thinking...</i>");
 
-    // Send to backend
-    const response = await fetch('/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question, memory })
-    });
+            try {
+                // Send to backend
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question, memory })
+                });
 
-    const result = await response.json();
+                if (!response.ok) {
+                    // Handle HTTP errors
+                    const errorText = await response.text();
+                    throw new Error(`Network response was not ok: ${response.status} ${response.statusText} - ${errorText}`);
+                }
 
-    // Display assistant message with typing effect
-    const assistantMessage = document.createElement('div');
-    assistantMessage.className = 'message assistant';
-    chatDiv.appendChild(assistantMessage);
+                const result = await response.json();
 
-    const typingSpan = document.createElement('span');
-    typingSpan.className = 'typing-effect';
-    assistantMessage.appendChild(typingSpan);
+                // Remove loading indicator if used
+                // const loadingMsg = document.querySelector('.message.assistant i');
+                // if (loadingMsg && loadingMsg.textContent === 'Thinking...') {
+                //     loadingMsg.parentElement.remove();
+                // }
 
-    // Simulate typing effect
-    const answer = result.answer.replace(/\n/g, "<br>"); // Replace \n with <br> for HTML rendering
-    let i = 0;
-    const interval = setInterval(() => {
-        if (i < answer.length) {
-            typingSpan.innerHTML += answer[i]; // Use innerHTML to render <br> tags
-            i++;
-        } else {
-            clearInterval(interval);
-            typingSpan.style.borderRight = 'none'; // Remove caret after typing
+                // Display assistant message with typing effect
+                if (result.answer) {
+                    typeAssistantMessage(result.answer);
+                } else {
+                     addMessage("Assistant", "Sorry, I couldn't generate a response.");
+                }
+
+
+                // Update memory
+                memory = result.memory || []; // Ensure memory is always an array
+
+            } catch (error) {
+                 console.error("Error during fetch:", error);
+                 // Display error message in chat
+                 addMessage("Assistant", `Sorry, an error occurred: ${error.message}. Please try again.`);
+                 // Optionally remove the loading indicator here too
+            }
         }
-    }, 20);
 
-    // Update memory
-    memory = result.memory;
+        // Initial focus on the input field
+        document.addEventListener('DOMContentLoaded', () => {
+             document.getElementById('question').focus();
+             // Add an initial welcome message from the assistant
+             setTimeout(() => { // Delay slightly for effect
+                 typeAssistantMessage("Hello there! I'm BrainWave, powered by Groq. Ask me anything!");
+             }, 500);
+        });
 
-    // Scroll to bottom
-    chatDiv.scrollTop = chatDiv.scrollHeight;
-}
     </script>
 </body>
 </html>
