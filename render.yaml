@@ -8,4 +8,4 @@ services:
     startCommand: uvicorn main:app --host 0.0.0.0 --port 10000
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.6  # Use full version format: major.minor.patch
+        value: 3.11.6 
