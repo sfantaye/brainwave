@@ -1,7 +1,7 @@
 # BrainWave
 
 **BrainWave** is an AI-powered chat application built using FastAPI and Groq. It leverages the power of the Groq API for conversational AI and includes a dynamic frontend with real-time typing effects. The app offers users the ability to interact with an AI assistant in an engaging and conversational way.
-Try at: fastapi-app-t1us.onrender.com
+
 
 ## Features
 - **Real-Time Typing Effect**: The assistant responds with a smooth typing animation, simulating a live conversation.
