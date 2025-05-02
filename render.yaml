@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: barainwave
+    name: brainwave
     env: python
     plan: free
     region: oregon
